@@ -24,4 +24,3 @@ jobs:
       - name: E2E tests
         run: docker compose exec app go test ./e2e_test
         if: ${{ success() }}
-        working-directory: app
