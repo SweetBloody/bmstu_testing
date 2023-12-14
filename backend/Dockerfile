@@ -1,7 +1,10 @@
 FROM golang:1.20
 WORKDIR /app
 COPY ./backend ./
-RUN go mod download
+RUN rm -rf go.mod go.sum vendor
+RUN go mod init git.iu7.bmstu.ru/kaa20u554/testing/backend
+RUN go mod tidy
+RUN go mod vendor
 RUN #go get github.com/githubnemo/CompileDaemon
 #ENTRYPOINT CompileDaemon --build="go build main.go" --command=main
 #ENTRYPOINT go run /home/alexey/go/src/git.iu7.bmstu.ru/kaa20u554/main.go
