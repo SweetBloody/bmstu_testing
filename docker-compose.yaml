@@ -41,8 +41,7 @@ services:
     restart: always
     depends_on:
       - postgres
-    build:
-      dockerfile: backend/Dockerfile
+    build: backend/Dockerfile
     environment:
       - PG_HOST=postgres
       - PG_PORT=5432
