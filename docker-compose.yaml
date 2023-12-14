@@ -38,10 +38,12 @@ services:
 
   app:
     container_name: app
+    image: alpine:latest
     restart: always
     depends_on:
       - postgres
-    build: ../backend
+    build:
+      dockerfile: backend/Dockerfile
     environment:
       - PG_HOST=postgres
       - PG_PORT=5432
