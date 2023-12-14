@@ -10,7 +10,6 @@ jobs:
 
       - name: Up containers
         run: docker-compose up -d --build
-        working-directory: app
 
 #      - name: Build
 #        run: docker compose exec app ./gradlew build -x test
@@ -19,12 +18,12 @@ jobs:
       - name: Unit tests
         run: docker compose exec app go test ./test
         if: ${{ success() }}
-        working-directory: app
+        working-directory: backend
 
       - name: Integration tests
         run: docker compose exec app go test ./integration_test
         if: ${{ success() }}
-        working-directory: app
+        working-directory: backend
 
 #      - name: E2E test
 #        run: docker compose exec app ./gradlew :RestAPI:test
