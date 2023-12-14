@@ -1,0 +1,44 @@
+name: Test
+
+on: push
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Up containers
+        run: docker-compose up -d --build
+        working-directory: app
+
+#      - name: Build
+#        run: docker compose exec app ./gradlew build -x test
+#        working-directory: test
+
+      - name: Unit tests
+        run: docker compose exec app go test ./test
+        if: ${{ success() }}
+        working-directory: app
+
+      - name: Integration tests
+        run: docker compose exec app go test ./integration_test
+        if: ${{ success() }}
+        working-directory: app
+
+#      - name: E2E test
+#        run: docker compose exec app ./gradlew :RestAPI:test
+#        if: ${{ success() }}
+#        working-directory: app
+
+#      - name: Generate report
+#        run: |
+#          docker compose exec app ./gradlew allureAggregateReport --clean
+#          docker compose exec app sh -c "cp -R /app/build/reports/allure-report/allureAggregateReport/* /app/reports"
+#        working-directory: test
+#
+#      - name: Archive report
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: test-report
+#          path: test/reports

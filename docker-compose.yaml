@@ -1,0 +1,149 @@
+version: '3.7'
+
+services:
+  postgres:
+    container_name: course_db
+    image: postgres
+    privileged: true
+    environment:
+      POSTGRES_USER: postgresql
+      POSTGRES_PASSWORD: postgresql
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pgdatanew:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database:/db_data
+    ports:
+      - 5432:5432
+    networks:
+      - postgres_network
+
+  #  postgres_replica:
+  #    container_name: postgres_replica_container
+  #    image: bitnami/postgresql
+  #    environment:
+  #      POSTGRESQL_PASSWORD: postgres
+  #      POSTGRESQL_MASTER_HOST: postgres
+  #      POSTGRESQL_PGAUDIT_LOG: READ
+  #      POSTGRESQL_LOG_HOSTNAME: true
+  #      POSTGRESQL_REPLICATION_MODE: slave
+  #      POSTGRESQL_REPLICATION_USER: repl_user
+  #      POSTGRESQL_REPLICATION_PASSWORD: repl_password
+  #      POSTGRESQL_MASTER_PORT_NUMBER: 5432
+  #      ALLOW_EMPTY_PASSWORD: yes
+  #    depends_on:
+  #      - postgres
+  #    networks:
+  #      - postgres_network
+
+  app:
+    container_name: app
+    restart: always
+    depends_on:
+      - postgres
+    build:
+      dockerfile: backend/Dockerfile
+    environment:
+      - PG_HOST=postgres
+      - PG_PORT=5432
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8081:8080"
+    networks:
+      - postgres_network
+
+  #  webapp2:
+  #    container_name: webapp_container2
+  #    restart: always
+  #    depends_on:
+  #      - postgres
+  #    build:
+  #      dockerfile: backend/Dockerfile
+  #    environment:
+  #      - PG_HOST=postgres
+  #      - PG_PORT=5432
+  #    volumes:
+  #      - ./backend:/app
+  #    networks:
+  #      - postgres_network
+  #      - nginx_network
+  #
+  #  webapp3:
+  #    container_name: webapp_container3
+  #    restart: always
+  #    depends_on:
+  #      - postgres
+  #    build:
+  #      dockerfile: backend/Dockerfile
+  #    environment:
+  #      - PG_HOST=postgres
+  #      - PG_PORT=5432
+  #    volumes:
+  #      - ./backend:/app
+  #    networks:
+  #      - postgres_network
+  #      - nginx_network
+  #
+  #  webapp_mirror:
+  #    container_name: webapp_mirror_container
+  #    restart: always
+  #    depends_on:
+  #      - postgres
+  #    build:
+  #      dockerfile: backend/Dockerfile
+  #    environment:
+  #      - PG_HOST=postgres_replica
+  #      - PG_PORT=5432
+  #    volumes:
+  #      - ./backend:/app
+  #    networks:
+  #      - postgres_network
+  #      - nginx_network
+  #
+  #  pgadmin:
+  #    container_name: pgadmin_container
+  #    image: dpage/pgadmin4:latest
+  #    depends_on:
+  #      - postgres
+  #    environment:
+  #      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #      PGADMIN_DEFAULT_PASSWORD: root
+  #    volumes:
+  #      - pgadmin-data:/var/lib/pgadmin
+  #    networks:
+  #      - postgres_network
+  #      - nginx_network
+  #
+  #  nginx:
+  #    image: 'byjg/nginx-extras'
+  #    container_name: nginx_container
+  #    depends_on:
+  #      - pgadmin
+  #      - webapp1
+  #    volumes:
+  #      - ./nginx/nginx_full.conf:/etc/nginx/nginx.conf
+  #      - ./README.md:/static/documentation/README.md
+  #      - ./img/:/static/documentation/img/
+  #      - ./benchmark/img/:/static/benchmark/img/
+  #      - ./benchmark/bench.md:/static/benchmark/bench.md
+  #      - ./static:/static
+  #    ports:
+  #      - "8081:8080"
+  #    networks:
+  #      - nginx_network
+#
+#  gitlab_runner:
+#    container_name: gitlab_runner
+#    image: gitlab/gitlab-runner:latest
+#    volumes:
+#      - docker-machine-config:/root/.docker/machine
+#    restart: always
+
+volumes:
+  pgdatanew:
+    driver: local
+
+networks:
+  postgres_network:
+    driver: bridge
