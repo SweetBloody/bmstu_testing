@@ -1,0 +1,26 @@
+name: Test
+
+on: push
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Up containers
+        run: docker compose up -d --build
+
+      - name: Unit tests
+        run: docker compose exec app go test ./test
+        if: ${{ success() }}
+        working-directory: backend
+
+      - name: Integration tests
+        run: docker compose exec app go test ./integration_test
+        if: ${{ success() }}
+        working-directory: backend
+
+      - name: E2E tests
+        run: docker compose exec app go test ./e2e_test
+        if: ${{ success() }}

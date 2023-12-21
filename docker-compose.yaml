@@ -1,0 +1,160 @@
+version: '3.7'
+
+services:
+  postgres:
+    container_name: course_db
+    image: postgres
+    privileged: true
+    environment:
+      POSTGRES_USER: postgresql
+      POSTGRES_PASSWORD: postgresql
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pgdatanew:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database:/db_data
+    ports:
+      - 5433:5432
+    networks:
+      - postgres_network
+
+
+  postgres2:
+    container_name: course_db2
+    image: postgres
+    privileged: true
+    environment:
+      POSTGRES_USER: postgresql
+      POSTGRES_PASSWORD: postgresql
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pgdatanews:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database:/db_data
+    ports:
+      - 5432:5432
+    networks:
+      - postgres_network
+
+  #  postgres_replica:
+  #    container_name: postgres_replica_container
+  #    image: bitnami/postgresql
+  #    environment:
+  #      POSTGRESQL_PASSWORD: postgres
+  #      POSTGRESQL_MASTER_HOST: postgres
+  #      POSTGRESQL_PGAUDIT_LOG: READ
+  #      POSTGRESQL_LOG_HOSTNAME: true
+  #      POSTGRESQL_REPLICATION_MODE: slave
+  #      POSTGRESQL_REPLICATION_USER: repl_user
+  #      POSTGRESQL_REPLICATION_PASSWORD: repl_password
+  #      POSTGRESQL_MASTER_PORT_NUMBER: 5432
+  #      ALLOW_EMPTY_PASSWORD: yes
+  #    depends_on:
+  #      - postgres
+  #    networks:
+  #      - postgres_network
+
+  app:
+    container_name: app
+    image: alpine:latest
+    restart: always
+    depends_on:
+      - postgres
+    build:
+      dockerfile: backend/Dockerfile
+    environment:
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - MODE = SQLX
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8081:8080"
+    networks:
+      - postgres_network
+
+  app2:
+    container_name: app2
+    image: alpine:latest
+    restart: always
+    depends_on:
+      - postgres
+    build:
+      dockerfile: backend/Dockerfile
+    environment:
+      - PG_HOST=postgres2
+      - PG_PORT=5432
+      - MODE = NOSQLX
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8082:8080"
+    networks:
+      - postgres_network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    environment:
+      TZ: "Europe/Moscow"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      # - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - postgres_network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    environment:
+      TZ: "Europe/Moscow"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command: "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    networks:
+      - postgres_network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  grafana:
+    image: grafana/grafana:9.5.1
+    container_name: grafana
+    environment:
+      TZ: "Europe/Moscow"
+      GF_SECURITY_ADMIN_USER: 'admin'
+      GF_SECURITY_ADMIN_PASSWORD: '1234'
+      GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel'
+    volumes:
+      - grafana_storage:/var/lib/grafana
+#      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    networks:
+      - postgres_network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  grafana_storage:
+  pgdatanews:
+  pgdatanew:
+    driver: local
+
+networks:
+  postgres_network:
+    driver: bridge

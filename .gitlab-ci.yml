@@ -1,0 +1,29 @@
+stages:
+  - test
+
+unit-tests:
+  stage: test
+  image: golang:alpine3.18
+  before_script:
+    - apk add make
+  script:
+    - cd backend
+    - go mod tidy
+    - make unit-test
+
+integration-tests:
+  stage: test
+  image: docker:24.0.2-dind-alpine3.18
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - docker:dind
+    - golang:1.20-alpine
+  before_script:
+    - docker compose up --build postgres -d
+  script:
+    - cd backend
+    - go mod tidy
+    - make integration-test
