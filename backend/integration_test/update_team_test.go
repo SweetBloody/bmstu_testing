@@ -1,9 +1,9 @@
 package integration_test
 
 import (
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
-	repo "git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/team/repository/postgresql"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/team/usecase"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
+	repo "github.com/SweetBloody/bmstu_testing/backend/internal/pkg/team/repository/postgresql"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/team/usecase"
 )
 
 func (suite *UsecaseRepositoryTestSuite) TestUsecaseUpdateTeam() {

@@ -14,6 +14,24 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./database:/db_data
     ports:
+      - 5433:5432
+    networks:
+      - postgres_network
+
+
+  postgres2:
+    container_name: course_db2
+    image: postgres
+    privileged: true
+    environment:
+      POSTGRES_USER: postgresql
+      POSTGRES_PASSWORD: postgresql
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pgdatanews:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database:/db_data
+    ports:
       - 5432:5432
     networks:
       - postgres_network
@@ -47,6 +65,7 @@ services:
     environment:
       - PG_HOST=postgres
       - PG_PORT=5432
+      - MODE = SQLX
     volumes:
       - ./backend:/app
     ports:
@@ -54,94 +73,85 @@ services:
     networks:
       - postgres_network
 
-  #  webapp2:
-  #    container_name: webapp_container2
-  #    restart: always
-  #    depends_on:
-  #      - postgres
-  #    build:
-  #      dockerfile: backend/Dockerfile
-  #    environment:
-  #      - PG_HOST=postgres
-  #      - PG_PORT=5432
-  #    volumes:
-  #      - ./backend:/app
-  #    networks:
-  #      - postgres_network
-  #      - nginx_network
-  #
-  #  webapp3:
-  #    container_name: webapp_container3
-  #    restart: always
-  #    depends_on:
-  #      - postgres
-  #    build:
-  #      dockerfile: backend/Dockerfile
-  #    environment:
-  #      - PG_HOST=postgres
-  #      - PG_PORT=5432
-  #    volumes:
-  #      - ./backend:/app
-  #    networks:
-  #      - postgres_network
-  #      - nginx_network
-  #
-  #  webapp_mirror:
-  #    container_name: webapp_mirror_container
-  #    restart: always
-  #    depends_on:
-  #      - postgres
-  #    build:
-  #      dockerfile: backend/Dockerfile
-  #    environment:
-  #      - PG_HOST=postgres_replica
-  #      - PG_PORT=5432
-  #    volumes:
-  #      - ./backend:/app
-  #    networks:
-  #      - postgres_network
-  #      - nginx_network
-  #
-  #  pgadmin:
-  #    container_name: pgadmin_container
-  #    image: dpage/pgadmin4:latest
-  #    depends_on:
-  #      - postgres
-  #    environment:
-  #      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-  #      PGADMIN_DEFAULT_PASSWORD: root
-  #    volumes:
-  #      - pgadmin-data:/var/lib/pgadmin
-  #    networks:
-  #      - postgres_network
-  #      - nginx_network
-  #
-  #  nginx:
-  #    image: 'byjg/nginx-extras'
-  #    container_name: nginx_container
-  #    depends_on:
-  #      - pgadmin
-  #      - webapp1
-  #    volumes:
-  #      - ./nginx/nginx_full.conf:/etc/nginx/nginx.conf
-  #      - ./README.md:/static/documentation/README.md
-  #      - ./img/:/static/documentation/img/
-  #      - ./benchmark/img/:/static/benchmark/img/
-  #      - ./benchmark/bench.md:/static/benchmark/bench.md
-  #      - ./static:/static
-  #    ports:
-  #      - "8081:8080"
-  #    networks:
-  #      - nginx_network
-#
-#  gitlab_runner:
-#    container_name: gitlab_runner
-#    image: gitlab/gitlab-runner:latest
-#    volumes:
-#      - docker-machine-config:/root/.docker/machine
-#    restart: always
+  app2:
+    container_name: app2
+    image: alpine:latest
+    restart: always
+    depends_on:
+      - postgres
+    build:
+      dockerfile: backend/Dockerfile
+    environment:
+      - PG_HOST=postgres2
+      - PG_PORT=5432
+      - MODE = NOSQLX
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8082:8080"
+    networks:
+      - postgres_network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    environment:
+      TZ: "Europe/Moscow"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      # - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - postgres_network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    environment:
+      TZ: "Europe/Moscow"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command: "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    networks:
+      - postgres_network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  grafana:
+    image: grafana/grafana:9.5.1
+    container_name: grafana
+    environment:
+      TZ: "Europe/Moscow"
+      GF_SECURITY_ADMIN_USER: 'admin'
+      GF_SECURITY_ADMIN_PASSWORD: '1234'
+      GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel'
+    volumes:
+      - grafana_storage:/var/lib/grafana
+#      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    networks:
+      - postgres_network
+    deploy:
+      restart_policy:
+        condition: on-failure
 
 volumes:
+  grafana_storage:
+  pgdatanews:
   pgdatanew:
     driver: local
 

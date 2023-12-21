@@ -3,8 +3,8 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/app/middleware"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/app/middleware"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -21,7 +21,8 @@ func NewDriverHandler(m *mux.Router, driverUsecase models.DriverUsecaseI, raceRe
 		raceResultUsecase: raceResultUsecase,
 	}
 
-	m.Handle("/api/drivers", middleware.AuthMiddleware(http.HandlerFunc(handler.GetAll), "admin", "user")).Methods("GET")
+	//m.Handle("/api/drivers", middleware.AuthMiddleware(http.HandlerFunc(handler.GetAll), "admin", "user")).Methods("GET")
+	m.HandleFunc("/api/drivers", handler.GetAll).Methods("GET")
 	m.Handle("/api/drivers", middleware.AuthMiddleware(http.HandlerFunc(handler.Create), "admin")).Methods("POST")
 	m.Handle("/api/drivers/{id}", middleware.AuthMiddleware(http.HandlerFunc(handler.GetDriverById), "admin", "user")).Methods("GET")
 	m.Handle("/api/drivers/{id}", middleware.AuthMiddleware(http.HandlerFunc(handler.Update), "admin")).Methods("PUT")

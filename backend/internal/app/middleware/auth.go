@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	tokenPkg "git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/auth/token"
+	tokenPkg "github.com/SweetBloody/bmstu_testing/backend/internal/pkg/auth/token"
 	"github.com/golang-jwt/jwt"
 	"net/http"
 )

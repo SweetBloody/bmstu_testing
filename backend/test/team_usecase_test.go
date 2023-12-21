@@ -1,10 +1,10 @@
 package test
 
 import (
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models/mocks"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/team/usecase"
-	testutils2 "git.iu7.bmstu.ru/kaa20u554/testing/backend/test/testutils"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models/mocks"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/team/usecase"
+	testutils2 "github.com/SweetBloody/bmstu_testing/backend/test/testutils"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 	"testing"

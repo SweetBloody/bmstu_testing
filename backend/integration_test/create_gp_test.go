@@ -1,9 +1,9 @@
 package integration_test
 
 import (
-	repo "git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/grand_prix/repository/postgresql"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/grand_prix/usecase"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
+	repo "github.com/SweetBloody/bmstu_testing/backend/internal/pkg/grand_prix/repository/postgresql"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/grand_prix/usecase"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
 )
 
 func (suite *UsecaseRepositoryTestSuite) TestUsecaseCreateGP() {

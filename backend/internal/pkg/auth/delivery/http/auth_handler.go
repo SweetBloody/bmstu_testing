@@ -2,9 +2,9 @@ package http
 
 import (
 	"encoding/json"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/auth"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/auth/token"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/auth"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/auth/token"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
 	"github.com/gorilla/mux"
 	"net/http"
 )

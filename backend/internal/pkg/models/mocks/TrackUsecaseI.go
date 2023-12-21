@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	models "git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
+	models "github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
 	mock "github.com/stretchr/testify/mock"
 )
 

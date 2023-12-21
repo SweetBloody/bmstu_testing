@@ -3,12 +3,12 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/app/middleware"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/app/middleware"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 
-	"git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
+	"github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
 )
 
 type raceResultHandler struct {

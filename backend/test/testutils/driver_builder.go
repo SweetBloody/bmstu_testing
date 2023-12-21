@@ -1,6 +1,6 @@
 package testutils
 
-import "git.iu7.bmstu.ru/kaa20u554/testing/backend/internal/pkg/models"
+import "github.com/SweetBloody/bmstu_testing/backend/internal/pkg/models"
 
 type DriverBuilder struct {
 	driver models.Driver
